@@ -407,7 +407,7 @@ table th.amount { text-align: right; }
 }
 
 /* Hidden */
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 /* Profile Screen Overlay */
 #profileScreen {
@@ -1032,6 +1032,20 @@ table th.amount { text-align: right; }
   $backToLogin.addEventListener('click', () => {
     $createView.classList.add('hidden');
     $loginView.classList.remove('hidden');
+    // Rebuild profile list so newly created profiles appear
+    const profiles = loadProfiles();
+    if (profiles.length === 0) {
+      $profileList.innerHTML = '<p style="color:var(--text-dim);font-size:0.85rem;text-align:center;padding:8px 0">No profiles yet</p>';
+    } else {
+      $profileList.innerHTML = '';
+      profiles.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'profile-btn';
+        btn.textContent = p.name;
+        btn.addEventListener('click', () => selectProfile(p.name));
+        $profileList.appendChild(btn);
+      });
+    }
   });
   $backToList.addEventListener('click', () => {
     $pinSection.classList.add('hidden');
