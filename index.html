@@ -805,13 +805,17 @@ table th.amount { text-align: right; }
     // Deductions
     const amt401k = gross * pct401k;
     const fedTax = calcFederalTax(gross, amt401k);
+    const oasdi = gross * 0.062;   // Social Security 6.2%
+    const medicare = gross * 0.0145; // Medicare 1.45%
     const miscItems = getMiscItems();
     const miscTotal = miscItems.reduce((s, i) => s + i.amt, 0);
-    const totalDeductions = fedTax + amt401k + dues + health + miscTotal;
+    const totalDeductions = fedTax + oasdi + medicare + amt401k + dues + health + miscTotal;
     const net = gross - totalDeductions;
 
     let deductionsHTML = '';
     deductionsHTML += `<div class="deduction-line"><span class="label">Federal Tax</span><span class="amount">-${fmt(fedTax)}</span></div>`;
+    deductionsHTML += `<div class="deduction-line"><span class="label">OASDI / Social Security (6.2%)</span><span class="amount">-${fmt(oasdi)}</span></div>`;
+    deductionsHTML += `<div class="deduction-line"><span class="label">Medicare (1.45%)</span><span class="amount">-${fmt(medicare)}</span></div>`;
     if (amt401k > 0) deductionsHTML += `<div class="deduction-line"><span class="label">401k (${val($contrib401k)}%)</span><span class="amount">-${fmt(amt401k)}</span></div>`;
     if (dues > 0) deductionsHTML += `<div class="deduction-line"><span class="label">Union Dues</span><span class="amount">-${fmt(dues)}</span></div>`;
     if (health > 0) deductionsHTML += `<div class="deduction-line"><span class="label">Health Insurance</span><span class="amount">-${fmt(health)}</span></div>`;
