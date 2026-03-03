@@ -409,6 +409,209 @@ table th.amount { text-align: right; }
 /* Hidden */
 .hidden { display: none; }
 
+/* Profile Screen Overlay */
+#profileScreen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+#profileScreen .profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 380px;
+}
+
+#profileScreen h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-light);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+#profileScreen .subtitle {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#profileScreen .profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+#profileScreen .profile-btn {
+  padding: 12px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s;
+}
+
+#profileScreen .profile-btn:hover {
+  border-color: var(--accent-light);
+}
+
+#profileScreen .profile-btn.selected {
+  border-color: var(--accent-light);
+  background: rgba(0, 61, 165, 0.2);
+}
+
+#profileScreen .pin-input {
+  width: 100%;
+  padding: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1.2rem;
+  text-align: center;
+  letter-spacing: 8px;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+
+#profileScreen .pin-input:focus {
+  border-color: var(--accent-light);
+}
+
+#profileScreen .pin-input::placeholder {
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+}
+
+#profileScreen .name-input {
+  width: 100%;
+  padding: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+
+#profileScreen .name-input:focus {
+  border-color: var(--accent-light);
+}
+
+#profileScreen .btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 8px;
+}
+
+#profileScreen .btn-primary:hover {
+  background: var(--accent-light);
+}
+
+#profileScreen .btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#profileScreen .link-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+#profileScreen .link-btn:hover {
+  color: var(--text);
+}
+
+#profileScreen .error-msg {
+  color: var(--red);
+  font-size: 0.8rem;
+  text-align: center;
+  margin-bottom: 8px;
+  min-height: 1.2em;
+}
+
+/* Header profile controls */
+.header-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.header-profile .logged-in-name {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.header-profile .btn-logout,
+.header-profile .btn-save {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.header-profile .btn-logout {
+  background: var(--surface2);
+  color: var(--text-dim);
+}
+
+.header-profile .btn-logout:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.header-profile .btn-save {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.header-profile .btn-save:hover {
+  background: var(--accent-light);
+  border-color: var(--accent-light);
+}
+
+.header-profile .btn-save.saved {
+  background: var(--green);
+  border-color: var(--green);
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .container { padding: 10px; }
@@ -441,10 +644,46 @@ table th.amount { text-align: right; }
 </head>
 <body>
 
+<!-- Profile Screen -->
+<div id="profileScreen">
+  <div class="profile-card">
+    <h2>IBEW Pay Calculator</h2>
+    <p class="subtitle">Local 2320</p>
+
+    <!-- Login View -->
+    <div id="loginView">
+      <div id="profileList" class="profile-list"></div>
+      <div id="pinSection" class="hidden">
+        <input type="password" id="loginPin" class="pin-input" maxlength="4" inputmode="numeric" placeholder="PIN">
+        <div id="loginError" class="error-msg"></div>
+        <button id="loginBtn" class="btn-primary">Login</button>
+        <button id="backToList" class="link-btn">&larr; Back</button>
+      </div>
+      <button id="showCreate" class="link-btn">+ Create New Profile</button>
+    </div>
+
+    <!-- Create View -->
+    <div id="createView" class="hidden">
+      <input type="text" id="createName" class="name-input" placeholder="First name" maxlength="20" autocomplete="off">
+      <input type="password" id="createPin" class="pin-input" maxlength="4" inputmode="numeric" placeholder="4-digit PIN">
+      <div id="createError" class="error-msg"></div>
+      <button id="createBtn" class="btn-primary">Create Profile</button>
+      <button id="backToLogin" class="link-btn">&larr; Back</button>
+    </div>
+
+    <button id="skipBtn" class="link-btn">Skip &mdash; use without profile</button>
+  </div>
+</div>
+
 <div class="container">
   <header>
     <h1>IBEW Pay Calculator</h1>
     <p>Local 2320 &mdash; Straight / 1.5x / 2x</p>
+    <div id="headerProfile" class="header-profile hidden">
+      <span id="loggedInName" class="logged-in-name"></span>
+      <button id="saveBtn" class="btn-save">Save Settings</button>
+      <button id="logoutBtn" class="btn-logout">Logout</button>
+    </div>
   </header>
 
   <div class="layout">
@@ -598,6 +837,215 @@ table th.amount { text-align: right; }
 
 <script>
 (function() {
+  // --- Profile System ---
+  const PROFILES_KEY = 'ibew-profiles';
+  let currentProfile = null; // name of logged-in profile, or null
+
+  const $profileScreen = document.getElementById('profileScreen');
+  const $loginView = document.getElementById('loginView');
+  const $createView = document.getElementById('createView');
+  const $profileList = document.getElementById('profileList');
+  const $pinSection = document.getElementById('pinSection');
+  const $loginPin = document.getElementById('loginPin');
+  const $loginError = document.getElementById('loginError');
+  const $loginBtn = document.getElementById('loginBtn');
+  const $backToList = document.getElementById('backToList');
+  const $showCreate = document.getElementById('showCreate');
+  const $createName = document.getElementById('createName');
+  const $createPin = document.getElementById('createPin');
+  const $createError = document.getElementById('createError');
+  const $createBtn = document.getElementById('createBtn');
+  const $backToLogin = document.getElementById('backToLogin');
+  const $skipBtn = document.getElementById('skipBtn');
+  const $headerProfile = document.getElementById('headerProfile');
+  const $loggedInName = document.getElementById('loggedInName');
+  const $saveBtn = document.getElementById('saveBtn');
+  const $logoutBtn = document.getElementById('logoutBtn');
+
+  let selectedProfileName = null;
+
+  function loadProfiles() {
+    try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function saveProfiles(profiles) {
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+  }
+
+  function showProfileScreen() {
+    $profileScreen.classList.remove('hidden');
+    $loginView.classList.remove('hidden');
+    $createView.classList.add('hidden');
+    $pinSection.classList.add('hidden');
+    $loginError.textContent = '';
+    $loginPin.value = '';
+    selectedProfileName = null;
+
+    const profiles = loadProfiles();
+    if (profiles.length === 0) {
+      $profileList.innerHTML = '<p style="color:var(--text-dim);font-size:0.85rem;text-align:center;padding:8px 0">No profiles yet</p>';
+    } else {
+      $profileList.innerHTML = '';
+      profiles.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'profile-btn';
+        btn.textContent = p.name;
+        btn.addEventListener('click', () => selectProfile(p.name));
+        $profileList.appendChild(btn);
+      });
+    }
+  }
+
+  function selectProfile(name) {
+    selectedProfileName = name;
+    $profileList.querySelectorAll('.profile-btn').forEach(b => {
+      b.classList.toggle('selected', b.textContent === name);
+    });
+    $pinSection.classList.remove('hidden');
+    $loginPin.value = '';
+    $loginError.textContent = '';
+    $loginPin.focus();
+  }
+
+  function loginProfile() {
+    const pin = $loginPin.value;
+    if (pin.length !== 4) { $loginError.textContent = 'Enter 4-digit PIN'; return; }
+    const profiles = loadProfiles();
+    const profile = profiles.find(p => p.name === selectedProfileName);
+    if (!profile) { $loginError.textContent = 'Profile not found'; return; }
+    if (profile.pin !== pin) { $loginError.textContent = 'Wrong PIN'; $loginPin.value = ''; return; }
+
+    currentProfile = profile.name;
+    $profileScreen.classList.add('hidden');
+    $headerProfile.classList.remove('hidden');
+    $loggedInName.textContent = profile.name;
+    $hours.value = 0;
+    if (profile.settings) applySettings(profile.settings);
+    recalc();
+  }
+
+  function createProfile() {
+    const name = $createName.value.trim();
+    const pin = $createPin.value;
+    if (!name) { $createError.textContent = 'Enter a name'; return; }
+    if (pin.length !== 4 || !/^\d{4}$/.test(pin)) { $createError.textContent = 'PIN must be 4 digits'; return; }
+    const profiles = loadProfiles();
+    if (profiles.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+      $createError.textContent = 'Name already exists'; return;
+    }
+    profiles.push({ name, pin, settings: null });
+    saveProfiles(profiles);
+
+    currentProfile = name;
+    $profileScreen.classList.add('hidden');
+    $headerProfile.classList.remove('hidden');
+    $loggedInName.textContent = name;
+    $hours.value = 0;
+    recalc();
+  }
+
+  function logout() {
+    currentProfile = null;
+    $headerProfile.classList.add('hidden');
+    $hours.value = 0;
+    showProfileScreen();
+  }
+
+  function gatherSettings() {
+    const miscRows = [];
+    $miscContainer.querySelectorAll('.misc-row').forEach(row => {
+      const label = row.querySelector('input[type="text"]').value || '';
+      const amt = parseFloat(row.querySelector('input[type="number"]').value) || 0;
+      miscRows.push({ label, amt });
+    });
+    return {
+      baseRate: val($rate),
+      weekendDiff: $weekendDiff.checked,
+      diffMode: $diffStraight.checked ? 'straight' : 'all',
+      contrib401k: val($contrib401k),
+      unionDues: val($unionDues),
+      healthIns: val($healthIns),
+      allowances: allowances,
+      miscDeductions: miscRows
+    };
+  }
+
+  function applySettings(s) {
+    $rate.value = s.baseRate;
+    $weekendDiff.checked = s.weekendDiff;
+    $diffOptions.classList.toggle('hidden', !s.weekendDiff);
+    if (s.diffMode === 'all') {
+      $diffAll.checked = true;
+      diffRadios.forEach(l => l.classList.remove('active'));
+      $diffAll.nextElementSibling.classList.add('active');
+    } else {
+      $diffStraight.checked = true;
+      diffRadios.forEach(l => l.classList.remove('active'));
+      $diffStraight.nextElementSibling.classList.add('active');
+    }
+    $contrib401k.value = s.contrib401k;
+    $unionDues.value = s.unionDues;
+    $healthIns.value = s.healthIns;
+    allowances = s.allowances || 0;
+    allowanceBtns.forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.val) === allowances);
+    });
+    // Restore misc deductions
+    $miscContainer.innerHTML = '';
+    if (s.miscDeductions && s.miscDeductions.length > 0) {
+      s.miscDeductions.forEach(d => {
+        addMiscRow();
+        const row = $miscContainer.lastElementChild;
+        row.querySelector('input[type="text"]').value = d.label;
+        row.querySelector('input[type="number"]').value = d.amt;
+      });
+    }
+  }
+
+  function saveSettings() {
+    if (!currentProfile) return;
+    const profiles = loadProfiles();
+    const profile = profiles.find(p => p.name === currentProfile);
+    if (!profile) return;
+    profile.settings = gatherSettings();
+    saveProfiles(profiles);
+    $saveBtn.textContent = 'Saved!';
+    $saveBtn.classList.add('saved');
+    setTimeout(() => { $saveBtn.textContent = 'Save Settings'; $saveBtn.classList.remove('saved'); }, 1500);
+  }
+
+  // Profile event listeners
+  $loginBtn.addEventListener('click', loginProfile);
+  $loginPin.addEventListener('keydown', e => { if (e.key === 'Enter') loginProfile(); });
+  $createBtn.addEventListener('click', createProfile);
+  $createPin.addEventListener('keydown', e => { if (e.key === 'Enter') createProfile(); });
+  $createName.addEventListener('keydown', e => { if (e.key === 'Enter') $createPin.focus(); });
+  $showCreate.addEventListener('click', () => {
+    $loginView.classList.add('hidden');
+    $createView.classList.remove('hidden');
+    $createName.value = '';
+    $createPin.value = '';
+    $createError.textContent = '';
+    $createName.focus();
+  });
+  $backToLogin.addEventListener('click', () => {
+    $createView.classList.add('hidden');
+    $loginView.classList.remove('hidden');
+  });
+  $backToList.addEventListener('click', () => {
+    $pinSection.classList.add('hidden');
+    selectedProfileName = null;
+    $profileList.querySelectorAll('.profile-btn').forEach(b => b.classList.remove('selected'));
+  });
+  $skipBtn.addEventListener('click', () => {
+    currentProfile = null;
+    $profileScreen.classList.add('hidden');
+    $headerProfile.classList.add('hidden');
+  });
+  $saveBtn.addEventListener('click', saveSettings);
+  $logoutBtn.addEventListener('click', logout);
+
   // --- Elements ---
   const $hours = document.getElementById('totalHours');
   const $rate = document.getElementById('baseRate');
@@ -884,8 +1332,10 @@ table th.amount { text-align: right; }
 
   $addMisc.addEventListener('click', () => { addMiscRow(); });
 
-  // Initial calc
+  // Initial setup: show profile screen, reset hours
+  $hours.value = 0;
   recalc();
+  showProfileScreen();
 })();
 </script>
 </body>
