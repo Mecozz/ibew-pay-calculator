@@ -1098,34 +1098,36 @@ table th.amount { text-align: right; }
     return isNaN(v) ? 0 : v;
   }
 
-  // --- Tax Calculation (2024 Federal, Single, Weekly) ---
-  // IRS Pub 15-T: Weekly payroll
-  // Standard deduction: $14,600/yr = $280.77/week
-  // Allowance: $4,550/yr = $87.50/week
-  // Brackets (weekly):
-  //   10%: $0 - $230
-  //   12%: $230 - $803
-  //   22%: $803 - $1,863
-  //   24%: $1,863 - $3,839
-  //   32%: $3,839+
+  // --- Tax Calculation (2026 Federal, Single, Weekly) ---
+  // IRS Pub 15-T: Weekly payroll, percentage method
+  // Standard deduction: $16,100/yr = $309.62/week
+  // Legacy allowance (pre-2020 W-4): $4,300/yr = $82.69/week
+  // Brackets (weekly, applied to adjusted wages after std deduction):
+  //   10%: $0 - $238
+  //   12%: $238 - $969
+  //   22%: $969 - $2,033
+  //   24%: $2,033 - $3,880
+  //   32%: $3,880 - $4,927
+  //   35%: $4,927+
   function calcFederalTax(grossPay, pre401k) {
     // Pre-tax 401k reduces taxable income
     let taxableWages = grossPay - pre401k;
 
     // Subtract standard deduction
-    taxableWages -= 280.77;
+    taxableWages -= 309.62;
 
-    // Subtract allowances
-    taxableWages -= allowances * 87.50;
+    // Subtract allowances (legacy W-4)
+    taxableWages -= allowances * 82.69;
 
     if (taxableWages <= 0) return 0;
 
     const brackets = [
-      { limit: 230, rate: 0.10 },
-      { limit: 803, rate: 0.12 },
-      { limit: 1863, rate: 0.22 },
-      { limit: 3839, rate: 0.24 },
-      { limit: Infinity, rate: 0.32 }
+      { limit: 238, rate: 0.10 },
+      { limit: 969, rate: 0.12 },
+      { limit: 2033, rate: 0.22 },
+      { limit: 3880, rate: 0.24 },
+      { limit: 4927, rate: 0.32 },
+      { limit: Infinity, rate: 0.35 }
     ];
 
     let tax = 0;
