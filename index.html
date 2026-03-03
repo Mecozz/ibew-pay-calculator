@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBEW Pay Calculator</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --surface2: #2a2a2a;
+  --border: #333;
+  --text: #e0e0e0;
+  --text-dim: #999;
+  --accent: #003DA5;
+  --accent-light: #4a7fd4;
+  --green: #4caf50;
+  --red: #ef5350;
+  --orange: #ff9800;
+  --radius: 12px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+header {
+  text-align: center;
+  padding: 24px 0 16px;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-light);
+}
+
+header p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--accent-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card h2 .icon { font-size: 1.1rem; }
+
+/* Form inputs */
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field input[type="number"],
+.field input[type="text"],
+.field select {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.field input:focus, .field select:focus {
+  border-color: var(--accent-light);
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.row .field { flex: 1; }
+
+/* Toggle switch */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.toggle-row .label-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.toggle-row .sublabel {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input { display: none; }
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 2px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.switch input:checked + .slider {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(21px);
+  background: #fff;
+}
+
+/* Radio buttons */
+.radio-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.radio-group label {
+  flex: 1;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+}
+
+.radio-group input { display: none; }
+.radio-group input:checked + label,
+.radio-group label.active {
+  border-color: var(--accent-light);
+  background: rgba(0, 61, 165, 0.2);
+  color: var(--accent-light);
+}
+
+/* Allowance pills */
+.allowance-group {
+  display: flex;
+  gap: 8px;
+}
+
+.allowance-group button {
+  flex: 1;
+  padding: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.allowance-group button.active {
+  border-color: var(--accent-light);
+  background: rgba(0, 61, 165, 0.2);
+  color: var(--accent-light);
+}
+
+/* Misc deductions */
+.misc-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.misc-row input[type="text"] {
+  flex: 2;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.misc-row input[type="number"] {
+  flex: 1;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.misc-row input:focus { border-color: var(--accent-light); }
+
+.btn-remove {
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--red);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-add {
+  padding: 8px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--accent-light);
+  font-size: 0.85rem;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.btn-add:hover { border-color: var(--accent-light); }
+
+/* Results tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+table th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--text-dim);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+}
+
+table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+table tr:last-child td { border-bottom: none; }
+
+table .amount { text-align: right; font-variant-numeric: tabular-nums; }
+table th.amount { text-align: right; }
+
+/* Totals */
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 2px solid var(--border);
+  margin-top: 8px;
+}
+
+.total-row .label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.total-row .value {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.total-row.gross .value { color: var(--accent-light); }
+.total-row.net .value { color: var(--green); }
+
+/* Deduction line items */
+.deduction-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 0.85rem;
+}
+
+.deduction-line .label { color: var(--text-dim); }
+.deduction-line .amount { color: var(--red); font-variant-numeric: tabular-nums; }
+
+/* Side-by-side comparison */
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.comparison .col {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 14px;
+  border: 1px solid var(--border);
+}
+
+.comparison .col h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.comparison .col.wrong {
+  border-color: rgba(239, 83, 80, 0.3);
+}
+
+.comparison .col.wrong h3 { color: var(--red); }
+
+.comparison .col.correct {
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.comparison .col.correct h3 { color: var(--green); }
+
+.comparison .diff-amount {
+  font-size: 0.85rem;
+  color: var(--orange);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.comparison table { font-size: 0.8rem; }
+
+/* Quick reference */
+.quick-ref table td, .quick-ref table th {
+  text-align: center;
+  padding: 6px 8px;
+}
+
+.quick-ref table td:first-child, .quick-ref table th:first-child {
+  text-align: left;
+}
+
+/* Hidden */
+.hidden { display: none; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container { padding: 10px; }
+  .card { padding: 16px; }
+  .row { flex-direction: column; gap: 0; }
+  .comparison { grid-template-columns: 1fr; }
+  header h1 { font-size: 1.3rem; }
+  .quick-ref { overflow-x: auto; }
+}
+
+@media (min-width: 768px) {
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .inputs { position: sticky; top: 16px; }
+}
+
+/* Weekend diff info */
+.info-note {
+  font-size: 0.75rem;
+  color: var(--orange);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>IBEW Pay Calculator</h1>
+    <p>Local 2320 &mdash; Straight / 1.5x / 2x</p>
+  </header>
+
+  <div class="layout">
+    <!-- INPUTS -->
+    <div class="inputs">
+      <div class="card">
+        <h2><span class="icon">&#9201;</span> Hours &amp; Rate</h2>
+        <div class="row">
+          <div class="field">
+            <label>Total Hours</label>
+            <input type="number" id="totalHours" value="72" min="0" step="0.5" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label>Base Rate ($/hr)</label>
+            <input type="number" id="baseRate" value="43.61" min="0" step="0.01" inputmode="decimal">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">&#128197;</span> Weekend Differential</h2>
+        <div class="toggle-row">
+          <div>
+            <div class="label-text">10% Weekend Differential</div>
+            <div class="sublabel">Adds 10% to base rate</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="weekendDiff">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="diffOptions" class="hidden">
+          <div class="radio-group">
+            <input type="radio" name="diffMode" id="diffStraight" value="straight" checked>
+            <label for="diffStraight" class="active">Straight Only<br><small style="color:var(--red)">(Company&rsquo;s Way)</small></label>
+            <input type="radio" name="diffMode" id="diffAll" value="all">
+            <label for="diffAll">All Hours<br><small style="color:var(--green)">(Legal)</small></label>
+          </div>
+          <div class="info-note" id="diffNote">
+            Company applies differential to straight time only and calculates OT on base rate. Per 29 CFR 778.208, the differential should be included in the regular rate for OT calculations.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">&#128176;</span> Deductions</h2>
+        <div class="field">
+          <label>Tax Allowances (Single Filer)</label>
+          <div class="allowance-group">
+            <button class="active" data-val="0">0</button>
+            <button data-val="1">1</button>
+            <button data-val="2">2</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>401k (%)</label>
+            <input type="number" id="contrib401k" value="6" min="0" max="100" step="0.5" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label>Union Dues ($/wk)</label>
+            <input type="number" id="unionDues" value="40" min="0" step="1" inputmode="decimal">
+          </div>
+        </div>
+        <div class="field">
+          <label>Health Insurance ($/wk)</label>
+          <input type="number" id="healthIns" value="0" min="0" step="1" inputmode="decimal">
+        </div>
+
+        <div class="field" style="margin-top:4px">
+          <label>Miscellaneous Deductions</label>
+          <div id="miscContainer"></div>
+          <button class="btn-add" id="addMisc">+ Add Deduction</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results">
+      <div class="card" id="hoursCard">
+        <h2><span class="icon">&#128200;</span> Hours Breakdown</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Tier</th>
+              <th>Hours</th>
+              <th>Rate</th>
+              <th class="amount">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="hoursBody"></tbody>
+        </table>
+        <div class="total-row gross">
+          <span class="label">Gross Pay</span>
+          <span class="value" id="grossPay">$0.00</span>
+        </div>
+      </div>
+
+      <!-- Weekend Differential Comparison -->
+      <div class="card hidden" id="comparisonCard">
+        <h2><span class="icon">&#9888;</span> Weekend Differential Comparison</h2>
+        <p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:12px">
+          See the pay difference between the company's method and the legally correct calculation.
+        </p>
+        <div class="comparison">
+          <div class="col wrong">
+            <h3>Company's Way (Wrong)</h3>
+            <table>
+              <tbody id="compWrong"></tbody>
+            </table>
+            <div style="margin-top:8px;font-size:0.95rem;font-weight:600" id="compWrongTotal"></div>
+          </div>
+          <div class="col correct">
+            <h3>Legal (29 CFR 778.208)</h3>
+            <table>
+              <tbody id="compCorrect"></tbody>
+            </table>
+            <div style="margin-top:8px;font-size:0.95rem;font-weight:600" id="compCorrectTotal"></div>
+          </div>
+        </div>
+        <div class="diff-amount" id="diffResult"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">&#128179;</span> Deductions</h2>
+        <div id="deductionsBody"></div>
+        <div class="total-row net">
+          <span class="label">Take Home</span>
+          <span class="value" id="netPay">$0.00</span>
+        </div>
+      </div>
+
+      <div class="card quick-ref">
+        <h2><span class="icon">&#9889;</span> Quick Reference</h2>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Per Min</th>
+              <th>Per 15m</th>
+              <th>Per 30m</th>
+              <th>Per Hour</th>
+            </tr>
+          </thead>
+          <tbody id="quickRef"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // --- Elements ---
+  const $hours = document.getElementById('totalHours');
+  const $rate = document.getElementById('baseRate');
+  const $weekendDiff = document.getElementById('weekendDiff');
+  const $diffOptions = document.getElementById('diffOptions');
+  const $diffStraight = document.getElementById('diffStraight');
+  const $diffAll = document.getElementById('diffAll');
+  const $contrib401k = document.getElementById('contrib401k');
+  const $unionDues = document.getElementById('unionDues');
+  const $healthIns = document.getElementById('healthIns');
+  const $miscContainer = document.getElementById('miscContainer');
+  const $addMisc = document.getElementById('addMisc');
+  const $hoursBody = document.getElementById('hoursBody');
+  const $grossPay = document.getElementById('grossPay');
+  const $deductionsBody = document.getElementById('deductionsBody');
+  const $netPay = document.getElementById('netPay');
+  const $quickRef = document.getElementById('quickRef');
+  const $comparisonCard = document.getElementById('comparisonCard');
+  const $compWrong = document.getElementById('compWrong');
+  const $compCorrect = document.getElementById('compCorrect');
+  const $compWrongTotal = document.getElementById('compWrongTotal');
+  const $compCorrectTotal = document.getElementById('compCorrectTotal');
+  const $diffResult = document.getElementById('diffResult');
+  const allowanceBtns = document.querySelectorAll('.allowance-group button');
+  const diffRadios = document.querySelectorAll('.radio-group label');
+
+  let allowances = 0;
+
+  // --- Helpers ---
+  function fmt(n) {
+    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function val(el) {
+    const v = parseFloat(el.value);
+    return isNaN(v) ? 0 : v;
+  }
+
+  // --- Tax Calculation (2024 Federal, Single, Weekly) ---
+  // IRS Pub 15-T: Weekly payroll
+  // Standard deduction: $14,600/yr = $280.77/week
+  // Allowance: $4,550/yr = $87.50/week
+  // Brackets (weekly):
+  //   10%: $0 - $230
+  //   12%: $230 - $803
+  //   22%: $803 - $1,863
+  //   24%: $1,863 - $3,839
+  //   32%: $3,839+
+  function calcFederalTax(grossPay, pre401k) {
+    // Pre-tax 401k reduces taxable income
+    let taxableWages = grossPay - pre401k;
+
+    // Subtract standard deduction
+    taxableWages -= 280.77;
+
+    // Subtract allowances
+    taxableWages -= allowances * 87.50;
+
+    if (taxableWages <= 0) return 0;
+
+    const brackets = [
+      { limit: 230, rate: 0.10 },
+      { limit: 803, rate: 0.12 },
+      { limit: 1863, rate: 0.22 },
+      { limit: 3839, rate: 0.24 },
+      { limit: Infinity, rate: 0.32 }
+    ];
+
+    let tax = 0;
+    let prev = 0;
+    for (const b of brackets) {
+      if (taxableWages <= prev) break;
+      const taxable = Math.min(taxableWages, b.limit) - prev;
+      tax += taxable * b.rate;
+      prev = b.limit;
+    }
+
+    return Math.max(0, tax);
+  }
+
+  // --- Hours breakdown ---
+  function calcHours(totalHrs, baseRate, diffEnabled, diffMode) {
+    const straightHrs = Math.min(totalHrs, 40);
+    const halfHrs = Math.max(0, Math.min(totalHrs, 52) - 40);
+    const doubleHrs = Math.max(0, totalHrs - 52);
+
+    let straightRate, halfRate, doubleRate;
+
+    if (!diffEnabled) {
+      straightRate = baseRate;
+      halfRate = baseRate * 1.5;
+      doubleRate = baseRate * 2;
+    } else if (diffMode === 'straight') {
+      // Company's way: diff on straight only, OT on base
+      straightRate = baseRate * 1.10;
+      halfRate = baseRate * 1.5;
+      doubleRate = baseRate * 2;
+    } else {
+      // Legal way: diff included in regular rate for OT
+      const diffRate = baseRate * 1.10;
+      straightRate = diffRate;
+      halfRate = diffRate * 1.5;
+      doubleRate = diffRate * 2;
+    }
+
+    return {
+      tiers: [
+        { name: 'Straight (1-40)', hours: straightHrs, rate: straightRate, sub: straightHrs * straightRate },
+        { name: 'Time & Half (41-52)', hours: halfHrs, rate: halfRate, sub: halfHrs * halfRate },
+        { name: 'Double (53+)', hours: doubleHrs, rate: doubleRate, sub: doubleHrs * doubleRate }
+      ],
+      straightRate, halfRate, doubleRate
+    };
+  }
+
+  // --- Misc deductions ---
+  function addMiscRow() {
+    const row = document.createElement('div');
+    row.className = 'misc-row';
+    row.innerHTML = '<input type="text" placeholder="Label">' +
+      '<input type="number" placeholder="$0" min="0" step="1" inputmode="decimal">' +
+      '<button class="btn-remove">&times;</button>';
+    row.querySelector('.btn-remove').addEventListener('click', () => { row.remove(); recalc(); });
+    row.querySelectorAll('input').forEach(i => i.addEventListener('input', recalc));
+    $miscContainer.appendChild(row);
+  }
+
+  function getMiscTotal() {
+    let total = 0;
+    $miscContainer.querySelectorAll('.misc-row').forEach(row => {
+      const amt = parseFloat(row.querySelector('input[type="number"]').value);
+      if (!isNaN(amt)) total += amt;
+    });
+    return total;
+  }
+
+  function getMiscItems() {
+    const items = [];
+    $miscContainer.querySelectorAll('.misc-row').forEach(row => {
+      const label = row.querySelector('input[type="text"]').value || 'Misc';
+      const amt = parseFloat(row.querySelector('input[type="number"]').value);
+      if (!isNaN(amt) && amt > 0) items.push({ label, amt });
+    });
+    return items;
+  }
+
+  // --- Main recalc ---
+  function recalc() {
+    const totalHrs = val($hours);
+    const baseRate = val($rate);
+    const diffEnabled = $weekendDiff.checked;
+    const diffMode = $diffStraight.checked ? 'straight' : 'all';
+    const pct401k = val($contrib401k) / 100;
+    const dues = val($unionDues);
+    const health = val($healthIns);
+
+    // Calculate hours based on current mode
+    let result;
+    if (diffEnabled) {
+      // Use the selected mode for the main display
+      result = calcHours(totalHrs, baseRate, true, diffMode);
+    } else {
+      result = calcHours(totalHrs, baseRate, false, 'straight');
+    }
+
+    const gross = result.tiers.reduce((s, t) => s + t.sub, 0);
+
+    // Hours table
+    $hoursBody.innerHTML = result.tiers
+      .filter(t => t.hours > 0)
+      .map(t => `<tr><td>${t.name}</td><td>${t.hours}</td><td>${fmt(t.rate)}</td><td class="amount">${fmt(t.sub)}</td></tr>`)
+      .join('');
+
+    $grossPay.textContent = fmt(gross);
+
+    // Comparison card
+    if (diffEnabled && totalHrs > 40) {
+      $comparisonCard.classList.remove('hidden');
+
+      const wrongResult = calcHours(totalHrs, baseRate, true, 'straight');
+      const correctResult = calcHours(totalHrs, baseRate, true, 'all');
+      const wrongGross = wrongResult.tiers.reduce((s, t) => s + t.sub, 0);
+      const correctGross = correctResult.tiers.reduce((s, t) => s + t.sub, 0);
+
+      $compWrong.innerHTML = wrongResult.tiers
+        .filter(t => t.hours > 0)
+        .map(t => `<tr><td>${t.hours}h @ ${fmt(t.rate)}</td><td class="amount">${fmt(t.sub)}</td></tr>`)
+        .join('');
+      $compWrongTotal.textContent = 'Gross: ' + fmt(wrongGross);
+
+      $compCorrect.innerHTML = correctResult.tiers
+        .filter(t => t.hours > 0)
+        .map(t => `<tr><td>${t.hours}h @ ${fmt(t.rate)}</td><td class="amount">${fmt(t.sub)}</td></tr>`)
+        .join('');
+      $compCorrectTotal.textContent = 'Gross: ' + fmt(correctGross);
+
+      const diff = correctGross - wrongGross;
+      $diffResult.textContent = diff > 0
+        ? `You're owed ${fmt(diff)} more per week with the legal calculation`
+        : 'No difference for straight time only';
+    } else {
+      $comparisonCard.classList.add('hidden');
+    }
+
+    // Deductions
+    const amt401k = gross * pct401k;
+    const fedTax = calcFederalTax(gross, amt401k);
+    const miscItems = getMiscItems();
+    const miscTotal = miscItems.reduce((s, i) => s + i.amt, 0);
+    const totalDeductions = fedTax + amt401k + dues + health + miscTotal;
+    const net = gross - totalDeductions;
+
+    let deductionsHTML = '';
+    deductionsHTML += `<div class="deduction-line"><span class="label">Federal Tax</span><span class="amount">-${fmt(fedTax)}</span></div>`;
+    if (amt401k > 0) deductionsHTML += `<div class="deduction-line"><span class="label">401k (${val($contrib401k)}%)</span><span class="amount">-${fmt(amt401k)}</span></div>`;
+    if (dues > 0) deductionsHTML += `<div class="deduction-line"><span class="label">Union Dues</span><span class="amount">-${fmt(dues)}</span></div>`;
+    if (health > 0) deductionsHTML += `<div class="deduction-line"><span class="label">Health Insurance</span><span class="amount">-${fmt(health)}</span></div>`;
+    miscItems.forEach(i => {
+      deductionsHTML += `<div class="deduction-line"><span class="label">${i.label}</span><span class="amount">-${fmt(i.amt)}</span></div>`;
+    });
+    $deductionsBody.innerHTML = deductionsHTML;
+
+    $netPay.textContent = fmt(net);
+
+    // Quick reference
+    const rates = [
+      { label: 'Straight', rate: diffEnabled ? (diffMode === 'straight' ? baseRate * 1.10 : baseRate * 1.10) : baseRate },
+      { label: '1.5x', rate: result.halfRate },
+      { label: '2x', rate: result.doubleRate }
+    ];
+
+    // For quick ref, use the active base rate
+    const activeBase = diffEnabled ? baseRate * 1.10 : baseRate;
+    const qr = [
+      { label: 'Straight', rate: activeBase },
+      { label: '1.5x', rate: result.halfRate },
+      { label: '2x', rate: result.doubleRate }
+    ];
+
+    $quickRef.innerHTML = qr.map(r => {
+      const perMin = r.rate / 60;
+      const per15 = r.rate / 4;
+      const per30 = r.rate / 2;
+      return `<tr>
+        <td><strong>${r.label}</strong></td>
+        <td>${fmt(perMin)}</td>
+        <td>${fmt(per15)}</td>
+        <td>${fmt(per30)}</td>
+        <td>${fmt(r.rate)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // --- Event Listeners ---
+  [$hours, $rate, $contrib401k, $unionDues, $healthIns].forEach(el => {
+    el.addEventListener('input', recalc);
+  });
+
+  $weekendDiff.addEventListener('change', () => {
+    $diffOptions.classList.toggle('hidden', !$weekendDiff.checked);
+    recalc();
+  });
+
+  document.querySelectorAll('input[name="diffMode"]').forEach(r => {
+    r.addEventListener('change', () => {
+      diffRadios.forEach(l => l.classList.remove('active'));
+      r.nextElementSibling.classList.add('active');
+      recalc();
+    });
+  });
+
+  allowanceBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      allowanceBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      allowances = parseInt(btn.dataset.val);
+      recalc();
+    });
+  });
+
+  $addMisc.addEventListener('click', () => { addMiscRow(); });
+
+  // Initial calc
+  recalc();
+})();
+</script>
+</body>
+</html>
